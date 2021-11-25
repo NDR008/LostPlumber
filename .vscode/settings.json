@@ -1,0 +1,19 @@
+{
+    "files.associations": {
+        "syscalls.h": "c",
+        "pcsxhw.h": "c",
+        "types.h": "c",
+        "pads.h": "c",
+        "input.h": "c",
+        "stdbool.h": "c",
+        "libetc.h": "c",
+        "stdio.h": "c",
+        "libgte.h": "c",
+        "stdlib.h": "c",
+        "images.h": "c",
+        "basics.h": "c",
+        "audio.h": "c",
+        "graphics.h": "c",
+        "timerz.h": "c"
+    }
+}

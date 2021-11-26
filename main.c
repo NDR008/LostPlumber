@@ -32,8 +32,34 @@ SOFTWARE.
 #include "engine/input.h"
 #include "engine/timerz.h"
 #include "engine/audio.h"
+#include "graphics/images.h"
+
+#define factor 1024     
+#define GRAVITY factor / 4
+#define SPRITEHEIGHT 16
+#define GROUND (SCREEN_HEIGHT- 40 - SPRITEHEIGHT) * factor
+
+// Global timer
+PSXTimer mainTimer;
+
+typedef struct AnimatedObject{
+    int frame_n;            // this is the current frame
+    int index;
+    int total_frames;       // this is the total frame
+    int y_pos;
+    int x_pos;
+    int x_vel;
+    int y_vel;
+    int anim_rate;
+    Image *img_list;   // make this a list of Image (ok)
+} AnimatedObject;
+
+AnimatedObject ground;
+Image groundL[4];
 
 void initGame(void);
+void initObjects(void);
+void animate(AnimatedObject *animatedObj);
 
 void initGame(void){
 	initializeScreen();
@@ -42,12 +68,39 @@ void initGame(void){
     audioInit();
     inputInit();  // init inputs
 	initializeDebugFont();
+    initObjects();
+}
+
+void initObjects(void){
+    ground.total_frames = 1;
+    ground.frame_n = 0;
+    ground.index = 0;
+    ground.y_pos = GROUND * factor;
+    ground.x_pos = 50 * factor;
+    ground.y_vel = 0;
+    ground.x_vel = 0;
+    ground.anim_rate = 0;
+    groundL[0] = createImage(img_ground);
+    ground.img_list = groundL;
+}
+
+void animate(AnimatedObject *animatedObj){
+    Image toDraw;
+    if (mainTimer.vsync % animatedObj->anim_rate == 0) {
+        animatedObj->frame_n++;
+        animatedObj->index = animatedObj->frame_n % animatedObj->total_frames;
+    }
+    toDraw = moveImage(animatedObj->img_list[animatedObj->index], animatedObj->x_pos / factor, animatedObj->y_pos / factor);
+    drawImage(toDraw);
 }
 
 int main() {
     initGame();
+    printf("Lost Plumber v0.1\n");
     while(1){
         clearDisplay();
+        animate(&ground);
         flushDisplay();
+        mainTimer = incTimer(mainTimer);
     }
 }

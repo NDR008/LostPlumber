@@ -57,8 +57,11 @@ typedef struct AnimatedObject{
     Image *img_list;   // make this a list of Image (ok)
 } AnimatedObject;
 
+AnimatedObject mainPlayer;
+Image mainPlayerL[1];
+
 typedef struct World{
-    int x_offset;
+    int x_col;
     int y_pos;
     int x_pos;
     int x_vel;
@@ -69,21 +72,24 @@ typedef struct World{
 World ground;
 Image groundL[1];
 
+int viewport_x = 0;
+
 #define rows 5
-#define cols 20
-#define cols_max 20 //max number of visible cols
+#define cols 56
+#define cols_max 21 //max number of visible cols
 int groundWorld[rows][cols] ={
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0},
-    {1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1}    
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1},
+    {0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,1,1,1,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,1},
+    {0,0,0,0,0,0,0,0,1,1,1,1,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,1,1,1,1,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1},
+    {1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1}  
 };
 
 void initGame(void);
 void initObjects(void);
 void animate(AnimatedObject *animatedObj);
 void drawWorld(void);
+void userAction(void);
 
 void initGame(void){
 	initializeScreen();
@@ -96,13 +102,27 @@ void initGame(void){
 }
 
 void initObjects(void){
-    ground.x_offset = 0;
+    mainPlayer.frame_n = 0;            // this is the current frame
+    mainPlayer.index = 0;
+    mainPlayer.total_frames = 1;       // this is the total frame
+    mainPlayer.y_pos = 10;
+    mainPlayer.x_pos = 0;
+    mainPlayer.x_vel = 0;
+    mainPlayer.y_vel = 0;
+    mainPlayer.anim_rate = 0;
+    mainPlayerL[0] = createImage(img_plumber);
+    mainPlayer.img_list = mainPlayerL;
+
+
+    ground.x_col = 0;
     ground.y_pos = GROUND;
     ground.x_pos = 50 * factor;
     ground.y_vel = 0;
     ground.x_vel = 0;
     groundL[0] = createImage(img_ground);
     ground.img_list = groundL;
+
+
 }
 
 void animate(AnimatedObject *animatedObj){
@@ -120,11 +140,27 @@ void animate(AnimatedObject *animatedObj){
 void drawWorld(void){
     Image tmpImage;
     for (int r=0; r < rows; r++){
-        for (int c = 0; c < cols_max; c++){
+        for (int c = ground.x_col; c < ground.x_col + cols_max; c++){
             if (groundWorld[r][c]==1){
-                tmpImage = moveImage(ground.img_list[0], 0+c*16, (16*8)+r*16);
+                tmpImage = moveImage(ground.img_list[0], -viewport_x+c*16, (16*8)+r*16);
                 drawImage(tmpImage);
             }
+        }
+    }
+}
+
+void userAction(void){
+    if (input_held & PAD_RIGHT) {
+        if (ground.x_col < (cols - cols_max)){
+            viewport_x = viewport_x + 4;
+            if (viewport_x -  ground.x_col*16 > 16){
+                printf("viewport_x at %i, with col %i\n", viewport_x, ground.x_col);
+                ground.x_col++;
+            }
+        }
+        else {
+            int nothing;
+            // reached end of world;
         }
     }
 }
@@ -135,6 +171,8 @@ int main() {
     mainTimer = createTimer();
     while(1){
         clearDisplay();
+        inputUpdate();
+        userAction();
         drawWorld();
         flushDisplay();
         mainTimer = incTimer(mainTimer);

@@ -45,4 +45,9 @@ void initGame(void){
 }
 
 int main() {
+    initGame();
+    while(1){
+        clearDisplay();
+        flushDisplay();
+    }
 }

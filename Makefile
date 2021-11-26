@@ -1,4 +1,4 @@
-TARGET = BuzzyBee
+TARGET = LostPlumber
 TYPE = ps-exe
 
 SRCS = main.c \

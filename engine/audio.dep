@@ -1,0 +1,5 @@
+engine/audio.o: engine/audio.c engine/audio.h \
+ ../third_party/psyq/include/libspu.h \
+ ../third_party/psyq/include/sys/types.h \
+ ../third_party/psyq/include/libds.h ../third_party/psyq/include/kernel.h \
+ ../third_party/psyq/include/r3000.h ../third_party/psyq/include/asm.h

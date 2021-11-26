@@ -1,0 +1,2 @@
+engine/timerz.o: engine/timerz.c ../third_party/psyq/include/sys/types.h \
+ engine/timerz.h ../third_party/psyq/include/libetc.h
